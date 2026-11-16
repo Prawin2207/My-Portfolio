@@ -32,16 +32,48 @@
         <!-- Right Column: Paragraph and CTAs -->
         <div class="md:col-span-5 md:pt-4 flex flex-col justify-between">
           <ScrollReveal>
-            <p class="text-pretty text-base sm:text-lg text-gray-500 dark:text-white/70 font-light leading-relaxed">
-              {{ aboutText }}
-            </p>
+            <!-- Expandable paragraph -->
+            <div class="relative">
+              <div
+                :class="[
+                  'overflow-hidden transition-all duration-500 ease-in-out',
+                  isExpanded ? 'max-h-[600px]' : 'max-h-[4.8em]'
+                ]"
+              >
+                <p class="text-pretty text-base sm:text-lg text-gray-500 dark:text-white/70 font-light leading-relaxed">
+                  {{ aboutText }}
+                </p>
+              </div>
+
+              <!-- Fade gradient when collapsed -->
+              <div
+                v-if="!isExpanded"
+                class="pointer-events-none absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white dark:from-ink to-transparent"
+              ></div>
+            </div>
+
+            <!-- Read more / Show less toggle -->
+            <button
+              @click="isExpanded = !isExpanded"
+              class="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-accent hover:opacity-80 transition-opacity duration-200 focus:outline-none"
+            >
+              <span>{{ isExpanded ? 'Show less' : 'Read more' }}</span>
+              <ChevronDown
+                :class="[
+                  'size-4 transition-transform duration-300',
+                  isExpanded ? 'rotate-180' : 'rotate-0'
+                ]"
+              />
+            </button>
           </ScrollReveal>
 
           <!-- Action Buttons -->
           <ScrollReveal class="mt-8">
             <div class="flex flex-wrap gap-4 items-center">
               <a 
-                href="#contact" 
+                :href="linkedin" 
+                target="_blank"
+                rel="noopener noreferrer"
                 class="group inline-flex items-center gap-2 rounded-full border border-gray-300 dark:border-white/20 px-6 py-3 text-sm font-semibold text-ink dark:text-white transition-all duration-300 hover:border-accent hover:text-accent active:scale-95"
               >
                 More about me
@@ -50,7 +82,8 @@
               
               <a 
                 :href="resumeUrl" 
-                download
+                target="_blank"
+                rel="noopener noreferrer"
                 class="group inline-flex items-center gap-2 rounded-full bg-ink dark:bg-white text-white dark:text-ink px-6 py-3 text-sm font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-95"
               >
                 <Download class="size-4" />
@@ -68,10 +101,13 @@
 </template>
 
 <script setup>
-import { ArrowUpRight, Download } from 'lucide-vue-next';
+import { ref } from 'vue';
+import { ArrowUpRight, Download, ChevronDown } from 'lucide-vue-next';
 import ScrollReveal from './ScrollReveal.vue';
 import ScrollHighlightText from './ScrollHighlightText.vue';
 import CareerTimeline from './CareerTimeline.vue';
+
+const isExpanded = ref(false);
 
 defineProps({
   aboutHeadline: {
@@ -87,6 +123,10 @@ defineProps({
     required: true
   },
   resumeUrl: {
+    type: String,
+    required: true
+  },
+  linkedin: {
     type: String,
     required: true
   }

@@ -8,7 +8,7 @@ export const portfolioData = {
   linkedin: "https://linkedin.com/in/prawin-k-485370249",
   github: "",
   location: "Tamil Nadu, India",
-  resumeUrl: "#",
+  resumeUrl: "/resume.html",
   web3formsKey: "f7902bee-ce37-46f5-ac5c-24d905dbf16c", // Go to https://web3forms.com to get your free key
   statusBadges: [
 
@@ -21,6 +21,7 @@ export const portfolioData = {
   aboutText: "I specialize in translating complex business requirements into clean, working software—whether that's responsive front-end interfaces, Node.js/Express back-ends, robust MySQL databases, or fully customized Zoho Creator, CRM, and Books installations. I value dependable communication, clean documentation, and reliable code delivery.",
   projects: [
     {
+      slug: "zoho-creator",
       title: "Custom Zoho Creator Applications",
       company: "Zoho Solutions",
       logoUrl: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=50&auto=format&fit=crop&q=80",
@@ -33,6 +34,7 @@ export const portfolioData = {
       link: "#"
     },
     {
+      slug: "node-express-apis",
       title: "Node.js & Express REST APIs",
       company: "Full-Stack Web",
       logoUrl: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=50&auto=format&fit=crop&q=80",
@@ -45,18 +47,20 @@ export const portfolioData = {
       link: "#"
     },
     {
+      slug: "zoho-crm-desk",
       title: "Zoho CRM & Desk Automation",
       company: "Enterprise Integration",
       logoUrl: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=50&auto=format&fit=crop&q=80",
       tags: ["CRM", "Desk, Customization"],
       year: "2023",
       description: "Streamlining operations by customizing Zoho CRM pipelines, client tracking systems, and Zoho Desk customer support flows.",
-      mockupType: "phone",
+      mockupType: "cover",
       gradient: "from-[oklch(0.60_0.16_236)] via-[oklch(0.40_0.15_244)] to-[oklch(0.20_0.08_252)]",
       imageUrl: "/images/zoho_crm_mobile.png",
       link: "#"
     },
     {
+      slug: "web-app-engineering",
       title: "End-to-End Web App Engineering",
       company: "Web Development",
       logoUrl: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=50&auto=format&fit=crop&q=80",

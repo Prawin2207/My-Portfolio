@@ -31,23 +31,16 @@
             :key="lab.title"
             class="group block w-[78vw] max-w-[280px] shrink-0 snap-start md:w-auto md:max-w-none"
           >
-            <!-- iPhone Mockup Card -->
-            <a :href="lab.link" class="block group-hover:scale-[1.01] transition-transform duration-300">
-              <div class="mx-auto w-full max-w-[240px] md:max-w-[250px]">
-                <div class="relative mx-auto aspect-[9/19] w-full rounded-[2.2rem] border border-white/10 bg-zinc-950 p-[5px] shadow-[0_25px_60px_-25px_rgba(0,0,0,0.8),inset_0_0_0_1.5px_rgba(255,255,255,0.06)]">
-                  <!-- Bezel Ring -->
-                  <div class="pointer-events-none absolute inset-0 rounded-[2.2rem] ring-1 ring-white/5"></div>
-                  <!-- Camera Dynamic Island / Notch -->
-                  <div class="absolute left-1/2 top-2 z-10 h-3.5 w-12 -translate-x-1/2 rounded-full bg-black border border-white/5"></div>
-                  <!-- Content Screen -->
-                  <div class="relative h-full w-full overflow-hidden rounded-[1.8rem] bg-zinc-900">
-                    <img 
-                      :src="lab.imageUrl" 
-                      :alt="lab.title"
-                      class="h-full w-full object-cover object-top"
-                      loading="lazy"
-                    />
-                  </div>
+            <!-- Lab Image Card (images already contain phone frames) -->
+            <a :href="lab.link" class="block group-hover:scale-[1.02] transition-transform duration-300">
+              <div class="mx-auto w-full max-w-[240px] md:max-w-[260px]">
+                <div class="relative w-full overflow-hidden rounded-2xl shadow-[0_20px_60px_-20px_rgba(0,0,0,0.7)] border border-white/8">
+                  <img 
+                    :src="lab.imageUrl" 
+                    :alt="lab.title"
+                    class="w-full h-auto object-contain"
+                    loading="lazy"
+                  />
                 </div>
               </div>
             </a>

@@ -32,6 +32,7 @@ import ContactFooter from './components/ContactFooter.vue';
       :aboutText="portfolioData.aboutText"
       :statusBadges="portfolioData.statusBadges"
       :resumeUrl="portfolioData.resumeUrl"
+      :linkedin="portfolioData.linkedin"
     />
 
     <!-- Contact mail triggers and location metadata -->

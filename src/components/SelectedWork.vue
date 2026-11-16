@@ -23,7 +23,7 @@
           :key="project.title"
           :class="index % 2 !== 0 ? 'md:translate-y-8' : ''"
         >
-          <a :href="project.link" class="group/card block">
+          <a :href="'#work/' + project.slug" @click.prevent="open(index)" class="group/card block cursor-pointer">
             <!-- Dynamic Gradient Card Container -->
             <div 
               :class="[
@@ -133,17 +133,62 @@
         </ScrollReveal>
       </div>
     </div>
+
+    <CaseStudyModal
+      :project="activeIndex === null ? null : projects[activeIndex]"
+      :index="activeIndex ?? 0"
+      :total="projects.length"
+      :nextTitle="activeIndex === null ? '' : projects[(activeIndex + 1) % projects.length].title"
+      @close="close"
+      @next="step(1)"
+      @prev="step(-1)"
+    />
   </section>
 </template>
 
 <script setup>
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { ArrowUpRight } from 'lucide-vue-next';
 import ScrollReveal from './ScrollReveal.vue';
+import CaseStudyModal from './CaseStudyModal.vue';
 
-defineProps({
+const props = defineProps({
   projects: {
     type: Array,
     required: true
   }
 });
+
+const activeIndex = ref(null);
+
+const setHash = (hash) => {
+  history.replaceState(null, '', hash ? '#' + hash : location.pathname + location.search);
+};
+
+const open = (index) => {
+  activeIndex.value = index;
+  setHash('work/' + props.projects[index].slug);
+};
+
+const close = () => {
+  activeIndex.value = null;
+  setHash('work');
+};
+
+const step = (dir) => {
+  const n = props.projects.length;
+  open((activeIndex.value + dir + n) % n);
+};
+
+const syncFromHash = () => {
+  const m = location.hash.match(/^#work\/(.+)$/);
+  const i = m ? props.projects.findIndex((p) => p.slug === m[1]) : -1;
+  activeIndex.value = i >= 0 ? i : null;
+};
+
+onMounted(() => {
+  syncFromHash();
+  window.addEventListener('hashchange', syncFromHash);
+});
+onBeforeUnmount(() => window.removeEventListener('hashchange', syncFromHash));
 </script>
