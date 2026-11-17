@@ -4,54 +4,81 @@
 
 @layer base {
   html {
-    scroll-behavior: smooth;
-    font-family: 'Inter', 'Geist', sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #0a0a0b;
+    color: #ede8df;
+    overflow-x: clip; /* guard: nothing may widen the mobile layout viewport */
   }
-  
+
   body {
-    @apply antialiased selection:bg-accent selection:text-ink;
+    @apply antialiased;
     margin: 0;
     min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background: #c6ff3d;
+    color: #0a0a0b;
+  }
+
+  :focus-visible {
+    outline: 2px solid #c6ff3d;
+    outline-offset: 3px;
   }
 }
 
-/* Custom utility classes */
 @layer utilities {
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  .text-outline {
+    -webkit-text-stroke: 1px rgba(237, 232, 223, 0.55);
+    color: transparent;
   }
-  .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
 }
 
-/* Custom device mockup styling */
-.project-tablet-frame {
-  perspective: 1000px;
+/* Hide the native cursor only when the custom cursor is active (fine pointers) */
+html.has-cursor,
+html.has-cursor a,
+html.has-cursor button,
+html.has-cursor [data-cursor] {
+  cursor: none;
+}
+html.has-cursor input,
+html.has-cursor textarea {
+  cursor: text;
 }
 
-.device-shadow {
-  box-shadow: 
-    0 25px 50px -12px rgba(0, 0, 0, 0.45),
-    0 0 0 1px rgba(255, 255, 255, 0.05);
+/* Film-grain overlay for texture (pure CSS, no image request) */
+.grain::after {
+  content: '';
+  position: fixed;
+  inset: -50%;
+  z-index: 90;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  animation: grain 1.2s steps(6) infinite;
+}
+@keyframes grain {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-3%, 2%); }
+  40% { transform: translate(2%, -4%); }
+  60% { transform: translate(-4%, -2%); }
+  80% { transform: translate(3%, 4%); }
+  100% { transform: translate(0, 0); }
 }
 
-.dark .device-shadow {
-  box-shadow: 
-    0 25px 50px -12px rgba(0, 0, 0, 0.75),
-    0 0 0 1px rgba(255, 255, 255, 0.1);
+/* Shared schematic hairline grid */
+.schematic-grid {
+  background-image:
+    linear-gradient(rgba(237, 232, 223, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(237, 232, 223, 0.045) 1px, transparent 1px);
+  background-size: 80px 80px;
 }
 
-/* Smooth transition styles */
-.fade-up-enter-active,
-.fade-up-leave-active {
-  transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.fade-up-enter-from,
-.fade-up-leave-to {
-  opacity: 0;
-  transform: translateY(40px);
-  filter: blur(8px);
+@media (prefers-reduced-motion: reduce) {
+  .grain::after { animation: none; }
+  html { scroll-behavior: auto; }
 }

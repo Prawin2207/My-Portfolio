@@ -10,7 +10,11 @@
   },
   "dependencies": {
     "@lucide/vue": "^1.30.0",
+    "animejs": "^3.2.2",
+    "gsap": "^3.13.0",
     "lucide-vue-next": "^1.0.0",
+    "pixi.js": "^8.5.2",
+    "three": "^0.169.0",
     "vue": "^3.3.4"
   },
   "devDependencies": {

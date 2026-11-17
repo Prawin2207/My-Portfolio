@@ -9,26 +9,26 @@ export default {
     extend: {
       colors: {
         ink: {
-          DEFAULT: "#0b0c10",
-          light: "#181a22",
+          DEFAULT: "#0a0a0b",
+          light: "#141416",
         },
-        court: {
-          DEFAULT: "#0f2f25",
-          dark: "#0b201a",
+        bone: {
+          DEFAULT: "#ede8df",
+          dim: "#8f8a82",
         },
+        // Signal colours for the "Workflow Engine" design
         accent: {
-          DEFAULT: "#76e3d7", // oklch(0.78 0.14 235) is a cyan-like color
-          light: "#a5f3fc",
+          DEFAULT: "#c6ff3d", // acid lime - live data
+          light: "#dcff8a",
         },
+        signal: "#ff5b2e", // status orange
       },
       fontFamily: {
-        sans: ["Inter", "Geist", "sans-serif"],
-        display: ["Bricolage Grotesque", "Geist", "sans-serif"],
-        mono: ["Geist Mono", "monospace"],
+        sans: ["Inter", "system-ui", "sans-serif"],
+        display: ["Syne", "system-ui", "sans-serif"],
+        mono: ["JetBrains Mono", "ui-monospace", "monospace"],
       },
     },
   },
   plugins: [],
 }
-
-

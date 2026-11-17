@@ -3,7 +3,7 @@
     <Transition name="cs">
       <div
         v-if="project && study"
-        class="fixed inset-0 z-[100] flex justify-center bg-black/70 backdrop-blur-sm"
+        class="fixed inset-0 z-[130] flex justify-center bg-black/70 backdrop-blur-sm"
         @click.self="$emit('close')"
         role="dialog"
         aria-modal="true"

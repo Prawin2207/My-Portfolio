@@ -1,5 +1,7 @@
 import { createApp } from 'vue'
 import './style.css'
-import App from './App.vue'
+// New "Workflow Engine" design. The previous design is still in App.vue
+// (and on the `main` branch / `v1-classic-design` tag).
+import App from './AppCreative.vue'
 
 createApp(App).mount('#app')
