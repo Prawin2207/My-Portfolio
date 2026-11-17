@@ -20,13 +20,13 @@
     <div ref="titleWrap" class="relative z-10 mx-auto flex w-full max-w-[1600px] flex-1 flex-col justify-center px-5 md:px-12">
       <h1 class="sr-only">Prawin K. — Full-Stack Developer and Zoho Specialist</h1>
       <div aria-hidden="true" class="select-none">
-        <div ref="nameEl" class="hero-name whitespace-nowrap font-display uppercase text-bone">PRAWIN</div>
-        <div class="flex items-end justify-between gap-6 md:-mt-[2vw]">
+        <div ref="nameEl" class="hero-name whitespace-nowrap font-display uppercase">PRAWIN</div>
+        <div class="mt-[1.2vw] flex items-end justify-between gap-6">
           <p ref="roleEl" class="mb-[1.6vw] max-w-[28ch] font-mono text-[11px] uppercase leading-relaxed tracking-[0.16em] text-bone-dim md:text-xs">
             Full-stack developer / Zoho specialist
           </p>
           <div ref="kEl" class="hero-k whitespace-nowrap font-display uppercase">
-            K<span class="text-accent">.</span>
+            K<span class="hero-dot" aria-hidden="true"></span>
           </div>
         </div>
       </div>
@@ -89,17 +89,18 @@ const updateClock = () => { clock.value = fmt.format(new Date()); };
 const onPointerMove = (e) => terrain?.setPointer(e.clientX, e.clientY);
 const onPointerLeave = () => terrain?.clearPointer();
 
-// Variable-font proximity: letters near the cursor thicken (Syne wght 400-800)
+// Proximity "x-ray": letters near the cursor fade from solid to outline.
+// Only the fill opacity changes, so letter widths stay perfectly even.
 let chars = [];
-let weightSetters = [];
+let fillSetters = [];
 const onNameMove = (e) => {
   chars.forEach((c, i) => {
     const r = c.getBoundingClientRect();
     const d = Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2));
-    weightSetters[i](gsap.utils.mapRange(0, 380, 800, 560, Math.min(d, 380)));
+    fillSetters[i](gsap.utils.clamp(0, 1, gsap.utils.mapRange(60, 300, 0, 1, d)));
   });
 };
-const onNameLeave = () => weightSetters.forEach((s) => s(560));
+const onNameLeave = () => fillSetters.forEach((s) => s(1));
 
 const playIntro = async () => {
   if (introStarted) return;
@@ -139,7 +140,10 @@ const playIntro = async () => {
     });
 
     if (isFinePointer()) {
-      weightSetters = chars.map((c) => gsap.quickTo(c, 'fontWeight', { duration: 0.6, ease: 'power3.out' }));
+      fillSetters = chars.map((c) => {
+        gsap.set(c, { '--fill': 1 });
+        return gsap.quickTo(c, '--fill', { duration: 0.5, ease: 'power3.out' });
+      });
       root.value.addEventListener('pointermove', onNameMove);
       root.value.addEventListener('pointerleave', onNameLeave);
     }
@@ -197,23 +201,38 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .hero-name {
-  /* Syne is very wide: ~4.2em for "PRAWIN" */
-  font-size: clamp(3rem, 19vw, 21rem);
-  font-weight: 560;
-  line-height: 0.8;
-  letter-spacing: -0.055em;
-  margin-left: -0.04em;
+  /* one even weight; Syne 700 is ~4.6em wide for "PRAWIN" */
+  font-size: clamp(3rem, 17.5vw, 19rem);
+  font-weight: 700;
+  line-height: 0.82;
+  letter-spacing: -0.06em;
+  margin-left: -0.05em;
+}
+/* SplitText chars: solid fill that can fade to an outline */
+.hero-name :deep(div) {
+  color: rgba(237, 232, 223, var(--fill, 1));
+  -webkit-text-stroke: 1.5px rgba(237, 232, 223, 0.8);
 }
 .hero-k {
-  font-size: clamp(3rem, 19vw, 21rem);
-  font-weight: 560;
-  line-height: 0.8;
+  font-size: clamp(3rem, 17.5vw, 19rem);
+  font-weight: 700;
+  line-height: 0.82;
   letter-spacing: -0.04em;
-  -webkit-text-stroke: 1.5px rgba(237, 232, 223, 0.75);
+  -webkit-text-stroke: 1.5px rgba(237, 232, 223, 0.8);
   color: transparent;
 }
-.hero-k span {
-  -webkit-text-stroke: 0;
+.hero-dot {
+  display: inline-block;
+  width: 0.15em;
+  height: 0.15em;
+  margin-left: 0.06em;
+  border-radius: 9999px;
+  background: #c6ff3d;
+  box-shadow: 0 0 0.12em rgba(198, 255, 61, 0.7);
+  animation: dot 2.4s ease-in-out infinite;
+}
+@keyframes dot {
+  50% { box-shadow: 0 0 0.03em rgba(198, 255, 61, 0.3); transform: scale(0.88); }
 }
 .led {
   width: 7px;
@@ -234,6 +253,6 @@ onBeforeUnmount(() => {
   100% { transform: translate(-50%, 500%); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .led, .scroll-pulse { animation: none; }
+  .led, .scroll-pulse, .hero-dot { animation: none; }
 }
 </style>
