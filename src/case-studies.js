@@ -302,9 +302,9 @@ else
 }`
     },
     gallery: [
-      { src: "/images/zoho_crm_mobile.png", caption: "CRM on mobile" },
+      { src: "/images/zoho_creator_dashboard.png", caption: "Sales analytics" },
       { src: "/images/zoho_crm_lab.png", caption: "Pipeline & Blueprint" },
-      { src: "/images/zoho_creator_dashboard.png", caption: "Sales analytics" }
+      { src: "/images/zoho_books_lab.png", caption: "Deal-to-invoice handoff" }
     ],
     stack: ["Zoho CRM", "Zoho Desk", "Blueprint", "Deluge", "Workflow Rules", "Zoho Analytics"],
     expertise: [

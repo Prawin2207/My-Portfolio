@@ -75,6 +75,11 @@
                   </div>
                 </div>
 
+                <!-- Coded CRM dashboard mockup -->
+                <div v-else-if="project.mockupType === 'crm'" class="w-[94%] max-w-[560px]">
+                  <CrmMockup />
+                </div>
+
                 <!-- Cover / Full Card Frame -->
                 <div 
                   v-else 
@@ -151,6 +156,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { ArrowUpRight } from 'lucide-vue-next';
 import ScrollReveal from './ScrollReveal.vue';
 import CaseStudyModal from './CaseStudyModal.vue';
+import CrmMockup from './CrmMockup.vue';
 
 const props = defineProps({
   projects: {

@@ -54,7 +54,7 @@ export const portfolioData = {
       tags: ["CRM", "Desk, Customization"],
       year: "2023",
       description: "Streamlining operations by customizing Zoho CRM pipelines, client tracking systems, and Zoho Desk customer support flows.",
-      mockupType: "cover",
+      mockupType: "crm",
       gradient: "from-[oklch(0.60_0.16_236)] via-[oklch(0.40_0.15_244)] to-[oklch(0.20_0.08_252)]",
       imageUrl: "/images/zoho_crm_mobile.png",
       link: "#"

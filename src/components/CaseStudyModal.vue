@@ -52,7 +52,8 @@
                   {{ study.summary }}
                 </p>
               </div>
-              <div class="rounded-2xl border border-white/15 bg-black/30 p-2 shadow-2xl">
+              <CrmMockup v-if="project.mockupType === 'crm'" />
+              <div v-else class="rounded-2xl border border-white/15 bg-black/30 p-2 shadow-2xl">
                 <img :src="project.imageUrl" :alt="project.title" class="aspect-[16/10] w-full rounded-xl object-cover" />
               </div>
             </div>
@@ -230,6 +231,7 @@
 import { computed, ref, watch, nextTick, onBeforeUnmount, h } from 'vue';
 import { X, ChevronLeft, ChevronRight, ArrowRight, Check, Copy, Maximize2 } from 'lucide-vue-next';
 import { caseStudies } from '../case-studies';
+import CrmMockup from './CrmMockup.vue';
 
 const props = defineProps({
   project: { type: Object, default: null },
