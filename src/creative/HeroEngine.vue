@@ -20,15 +20,14 @@
     <div ref="titleWrap" class="relative z-10 mx-auto flex w-full max-w-[1600px] flex-1 flex-col justify-center px-5 md:px-12">
       <h1 class="sr-only">Prawin K. — Full-Stack Developer and Zoho Specialist</h1>
       <div aria-hidden="true" class="select-none">
-        <div ref="nameEl" class="hero-name whitespace-nowrap font-display uppercase">PRAWIN</div>
-        <div class="mt-[1.2vw] flex items-end justify-between gap-6">
-          <p ref="roleEl" class="mb-[1.6vw] max-w-[28ch] font-mono text-[11px] uppercase leading-relaxed tracking-[0.16em] text-bone-dim md:text-xs">
-            Full-stack developer / Zoho specialist
-          </p>
-          <div ref="kEl" class="hero-k whitespace-nowrap font-display uppercase">
-            K<span class="hero-dot" aria-hidden="true"></span>
-          </div>
+        <!-- "PRAWIN K." on one line; font-size is fitted to the container width in JS -->
+        <div ref="nameLine" class="name-line inline-flex w-max items-baseline whitespace-nowrap font-display uppercase">
+          <div ref="nameEl" class="hero-name">PRAWIN</div>
+          <div ref="kEl" class="hero-k">K<span class="hero-dot" aria-hidden="true"></span></div>
         </div>
+        <p ref="roleEl" class="mt-6 max-w-[40ch] font-mono text-[11px] uppercase leading-relaxed tracking-[0.16em] text-bone-dim md:mt-8 md:text-xs">
+          Full-stack developer / Zoho specialist
+        </p>
       </div>
     </div>
 
@@ -68,6 +67,22 @@ const root = ref(null);
 const canvas = ref(null);
 const titleWrap = ref(null);
 const nameEl = ref(null);
+const nameLine = ref(null);
+
+// "PRAWIN K." on one line at a compact 100px; shrinks only when the screen is too narrow
+const NAME_MAX_PX = 100;
+const fitName = () => {
+  const line = nameLine.value;
+  const box = titleWrap.value;
+  if (!line || !box) return;
+  const cs = getComputedStyle(box);
+  const avail = box.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  line.style.fontSize = '100px';
+  const w = line.scrollWidth;
+  if (w > 0) line.style.fontSize = Math.min(NAME_MAX_PX, (100 * avail * 0.995) / w) + 'px';
+  ScrollTrigger.refresh();
+};
+let fitRO = null;
 const roleEl = ref(null);
 const kEl = ref(null);
 const webgl = ref(true);
@@ -155,6 +170,11 @@ let unmounted = false;
 onMounted(async () => {
   updateClock();
   clockTimer = window.setInterval(updateClock, 1000);
+  fitName();
+  document.fonts?.ready.then(fitName);
+  let fitTimer = 0;
+  fitRO = new ResizeObserver(() => { clearTimeout(fitTimer); fitTimer = setTimeout(fitName, 80); });
+  fitRO.observe(titleWrap.value);
   if (props.ready) playIntro();
 
   webgl.value = hasWebGL();
@@ -188,6 +208,7 @@ watch(() => props.ready, (r) => { if (r) playIntro(); });
 onBeforeUnmount(() => {
   unmounted = true;
   clearInterval(clockTimer);
+  fitRO?.disconnect();
   io?.disconnect();
   ro?.disconnect();
   root.value?.removeEventListener('pointermove', onPointerMove);
@@ -200,9 +221,10 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+.name-line {
+  font-size: min(100px, 13.5vw); /* fallback; fitName() sets the exact size */
+}
 .hero-name {
-  /* one even weight; Syne 700 is ~4.6em wide for "PRAWIN" */
-  font-size: clamp(3rem, 17.5vw, 19rem);
   font-weight: 700;
   line-height: 0.82;
   letter-spacing: -0.06em;
@@ -214,7 +236,7 @@ onBeforeUnmount(() => {
   -webkit-text-stroke: 1.5px rgba(237, 232, 223, 0.8);
 }
 .hero-k {
-  font-size: clamp(3rem, 17.5vw, 19rem);
+  margin-left: 0.2em;
   font-weight: 700;
   line-height: 0.82;
   letter-spacing: -0.04em;

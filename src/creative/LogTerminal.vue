@@ -7,7 +7,7 @@
           <span class="h-[7px] w-[7px] rounded-full bg-accent shadow-[0_0_12px_rgba(198,255,61,0.8)]"></span>
           NODE_04 // LOG
         </div>
-        <h2 class="mt-5 font-display text-[clamp(2.6rem,5.5vw,5.5rem)] font-extrabold uppercase leading-[0.88] tracking-[-0.04em]">
+        <h2 class="mt-5 font-display text-[clamp(2.2rem,9.5vw,5rem)] font-bold uppercase leading-[0.9] tracking-[-0.04em] lg:text-[3.5vw] 2xl:text-[4.1rem]">
           Execution<br /><span class="text-outline">history</span>
         </h2>
         <p ref="aboutEl" class="mt-8 max-w-[46ch] text-lg font-light leading-relaxed text-bone/45">{{ about }}</p>
