@@ -31,42 +31,50 @@
 
       <div class="mt-10 grid gap-6 xl:grid-cols-[1.55fr_1fr]">
         <!-- schematic -->
-        <div class="relative min-w-0 border border-zinc-800 bg-[#121214]/80">
-          <div class="flex items-center justify-between border-b border-zinc-800 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.16em] text-zinc-500">
-            <span>system.schematic <span class="text-zinc-600 md:hidden">· swipe →</span></span>
-            <span class="text-bone/80">{{ hovered ? hovered.label : 'all nodes' }}</span>
+        <div ref="schematic" class="relative min-w-0 border border-zinc-800 bg-[#121214]/80">
+          <div class="flex items-center justify-between gap-4 border-b border-zinc-800 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.16em] text-zinc-500">
+            <span class="shrink-0">system.schematic</span>
+            <span class="truncate text-bone/80">{{ hovered ? hovered.label : 'all nodes' }}</span>
           </div>
-          <div class="overflow-x-auto no-scrollbar">
-            <svg ref="svg" viewBox="0 0 1000 600" class="block min-w-[720px] w-full" role="img"
+
+          <!-- Two layouts of the same web: wide (md+) and a portrait one sized for phones -->
+          <div v-for="g in graphs" :key="g.key" :class="g.cls">
+            <svg :ref="(el) => (svgEls[g.key] = el)" :viewBox="g.viewBox" class="block w-full" role="img"
               aria-label="Skills schematic: Zoho Creator, Deluge, Books, CRM and Desk connect through an Express API layer to Node.js, MySQL and Vue front-ends.">
               <!-- wires -->
               <g fill="none">
-                <path v-for="(w, i) in wires" :key="'b' + i" :d="w.d" stroke="#27272a" stroke-width="1.5" />
-                <path v-for="(w, i) in wires" :key="'w' + i" :d="w.d" :ref="(el) => (wireEls[i] = el)"
+                <path v-for="(w, i) in g.wires" :key="'b' + i" :d="w.d" stroke="#27272a" stroke-width="1.5" />
+                <path v-for="(w, i) in g.wires" :key="'w' + i" :d="w.d" :ref="(el) => (wireEls[g.key][i] = el)"
                   :class="['wire transition-[stroke,opacity] duration-300', isLit(w) ? 'lit' : hovered ? 'dim' : '']"
                   stroke-width="1.5" />
               </g>
-              <!-- pulses -->
+              <!-- pulses (drawn under the nodes so they slip in and out of them) -->
               <g>
-                <circle v-for="(w, i) in wires" :key="'p' + i" :ref="(el) => (pulseEls[i] = el)" r="3.5" fill="#c6ff3d" class="pulse" opacity="0" />
+                <circle v-for="(w, i) in g.wires" :key="'p' + i" :ref="(el) => (pulseEls[g.key][i] = el)" :r="g.m ? 2.5 : 3.5" fill="#c6ff3d" opacity="0" />
               </g>
               <!-- nodes -->
-              <g v-for="n in nodes" :key="n.id" :transform="`translate(${n.x} ${n.y})`">
-                <g class="node" @mouseenter="hovered = n" @mouseleave="hovered = null" @focus="hovered = n" @blur="hovered = null" tabindex="0" :aria-label="n.label + ': ' + n.info" data-cursor="Trace">
-                  <rect :x="-n.w / 2" y="-22" :width="n.w" height="44" :fill="hovered && hovered.id === n.id ? '#c6ff3d' : '#18181b'"
+              <g v-for="n in g.nodes" :key="n.id" :transform="`translate(${n.x} ${n.y})`">
+                <g class="node" @mouseenter="hovered = n" @mouseleave="hovered = null" @focus="hovered = n" @blur="hovered = null"
+                  @click="hovered = n"
+                  tabindex="0" :aria-label="n.label + ': ' + n.info" data-cursor="Trace">
+                  <!-- hub halo -->
+                  <rect v-if="n.hub" class="hub-halo" :x="-n.w / 2 - 5" :y="-g.h / 2 - 5" :width="n.w + 10" :height="g.h + 10" fill="none" stroke="#c6ff3d" stroke-opacity=".35" />
+                  <rect :x="-n.w / 2" :y="-g.h / 2" :width="n.w" :height="g.h" :fill="hovered && hovered.id === n.id ? '#c6ff3d' : '#18181b'"
                     :stroke="n.hub ? '#c6ff3d' : '#3f3f46'" class="transition-[fill] duration-300" />
-                  <circle :cx="-n.w / 2" cy="0" r="3.5" fill="#0a0a0b" stroke="#71717a" />
-                  <circle :cx="n.w / 2" cy="0" r="3.5" fill="#0a0a0b" stroke="#71717a" />
-                  <text text-anchor="middle" y="4.5" font-family="JetBrains Mono" font-size="13" font-weight="600" letter-spacing="1"
+                  <template v-if="!g.m">
+                    <circle :cx="-n.w / 2" cy="0" r="3.5" fill="#0a0a0b" stroke="#71717a" />
+                    <circle :cx="n.w / 2" cy="0" r="3.5" fill="#0a0a0b" stroke="#71717a" />
+                  </template>
+                  <text text-anchor="middle" :y="g.font * 0.36" font-family="JetBrains Mono" :font-size="g.font" font-weight="600" letter-spacing="1"
                     :fill="hovered && hovered.id === n.id ? '#0a0a0b' : '#ede8df'" class="pointer-events-none uppercase">{{ n.label }}</text>
-                  <text text-anchor="middle" y="40" font-family="JetBrains Mono" font-size="9" letter-spacing="1.5" fill="#71717a" class="pointer-events-none">{{ n.tag }}</text>
+                  <text text-anchor="middle" :y="g.h / 2 + g.tagFont + 5" font-family="JetBrains Mono" :font-size="g.tagFont" letter-spacing="1.2" fill="#71717a" class="tag pointer-events-none">{{ n.tag }}</text>
                 </g>
               </g>
             </svg>
           </div>
           <div class="min-h-[64px] border-t border-zinc-800 px-5 py-4 text-sm font-light text-bone/70">
             <span class="mr-2 font-mono text-[10px] uppercase tracking-[0.16em] text-accent">&gt; info</span>
-            {{ hovered ? hovered.info : 'Hover or tab through the nodes to inspect each capability.' }}
+            {{ hovered ? hovered.info : 'Tap, hover or tab through the nodes to inspect each capability.' }}
           </div>
         </div>
 
@@ -114,12 +122,13 @@ import anime from 'animejs/lib/anime.es.js';
 import { gsap, ScrollTrigger, SplitText, prefersReducedMotion } from './motion';
 
 const root = ref(null);
-const svg = ref(null);
 const heading = ref(null);
+const schematic = ref(null);
 const sparkDot = ref(null);
 const hovered = ref(null);
-const wireEls = [];
-const pulseEls = [];
+const svgEls = {};
+const wireEls = { desk: [], mob: [] };
+const pulseEls = { desk: [], mob: [] };
 const rowEls = [];
 
 const stats = [
@@ -160,6 +169,35 @@ const wires = links.map(([a, b]) => {
     : `M${sx} ${sy} C${sx} ${(sy + ey) / 2}, ${ex} ${(sy + ey) / 2}, ${ex} ${ey}`;
   return { a, b, d };
 });
+// Portrait "web" for phones: Express API is the hub, everything radiates from it.
+const MOBILE_POS = {
+  deluge: [180, 50, 78], creator: [60, 100, 84], desk: [300, 100, 64],
+  crm: [125, 190, 56], node: [262, 195, 84],
+  books: [60, 300, 70], api: [180, 300, 112], mysql: [300, 300, 72],
+  vue: [180, 420, 88]
+};
+const mNodes = nodes.map((n) => {
+  const [x, y, w] = MOBILE_POS[n.id];
+  return { ...n, x, y, w };
+});
+const mById = Object.fromEntries(mNodes.map((n) => [n.id, n]));
+const mWires = links.map(([a, b], i) => {
+  const A = mById[a];
+  const B = mById[b];
+  // centre-to-centre with a slight bow, so the web feels organic; nodes cover the ends
+  const mx = (A.x + B.x) / 2;
+  const my = (A.y + B.y) / 2;
+  const len = Math.hypot(B.x - A.x, B.y - A.y) || 1;
+  const bend = (i % 2 ? 1 : -1) * Math.min(14, len * 0.08);
+  const cx = mx + (-(B.y - A.y) / len) * bend;
+  const cy = my + ((B.x - A.x) / len) * bend;
+  return { a, b, d: `M${A.x} ${A.y} Q${cx} ${cy}, ${B.x} ${B.y}` };
+});
+
+const graphs = [
+  { key: 'desk', m: false, cls: 'hidden md:block', viewBox: '0 0 1000 600', nodes, wires, h: 44, font: 13, tagFont: 9 },
+  { key: 'mob', m: true, cls: 'px-2 pt-4 pb-2 md:hidden', viewBox: '0 0 360 460', nodes: mNodes, wires: mWires, h: 30, font: 11, tagFont: 7.5 }
+];
 const isLit = (w) => hovered.value && (w.a === hovered.value.id || w.b === hovered.value.id);
 
 /* ---------- simulated telemetry ---------- */
@@ -196,29 +234,26 @@ const runFeed = () => {
 let pulseAnims = [];
 let ctx;
 let started = false;
+let mq;
+const animated = new Set();
+const isShown = (key) => !!svgEls[key]?.getClientRects().length;
 
-const startSchematic = () => {
-  if (started) return;
-  started = true;
-  const nodeEls = svg.value.querySelectorAll('.node');
-  const counters = [...root.value.querySelectorAll('.stat-num')].map((el) => ({ el, v: 0, to: +el.dataset.to }));
+// Draw one layout of the web: nodes pop in from the hub outwards, wires draw, packets flow.
+const animateGraph = (g) => {
+  if (animated.has(g.key) || !isShown(g.key)) return;
+  animated.add(g.key);
+  const wEls = wireEls[g.key];
+  const pEls = pulseEls[g.key];
   anime.timeline({ easing: 'easeInOutSine' })
-    .add({ targets: nodeEls, opacity: [0, 1], translateY: [14, 0], duration: 600, delay: anime.stagger(70, { from: 'center' }), easing: 'easeOutExpo' })
-    .add({ targets: wireEls, strokeDashoffset: [anime.setDashoffset, 0], duration: 1100, delay: anime.stagger(90) }, 250)
-    .add({
-      targets: counters,
-      v: (c) => c.to,
-      round: 1,
-      duration: 1600,
-      easing: 'easeOutExpo',
-      update: () => counters.forEach((c) => (c.el.textContent = c.v))
-    }, 0)
+    .add({ targets: svgEls[g.key].querySelectorAll('.node'), opacity: [0, 1], translateY: [g.m ? 10 : 14, 0], duration: 600,
+      delay: anime.stagger(70, { from: g.m ? g.nodes.findIndex((n) => n.hub) : 'center' }), easing: 'easeOutExpo' })
+    .add({ targets: wEls, strokeDashoffset: [anime.setDashoffset, 0], duration: 1100, delay: anime.stagger(90) }, 250)
     .finished.then(() => {
       // data packets travelling along every wire
-      pulseAnims = wires.map((_, i) => {
-        const path = anime.path(wireEls[i]);
-        return anime({
-          targets: pulseEls[i],
+      g.wires.forEach((_, i) => {
+        const path = anime.path(wEls[i]);
+        pulseAnims.push(anime({
+          targets: pEls[i],
           translateX: path('x'),
           translateY: path('y'),
           opacity: [{ value: 1, duration: 150 }, { value: 1, duration: 1500 }, { value: 0, duration: 250 }],
@@ -227,10 +262,28 @@ const startSchematic = () => {
           endDelay: 600 + (i % 3) * 500,
           easing: 'easeInOutSine',
           loop: true
-        });
+        }));
       });
     });
 };
+
+const startSchematic = () => {
+  if (started) return;
+  started = true;
+  const counters = [...root.value.querySelectorAll('.stat-num')].map((el) => ({ el, v: 0, to: +el.dataset.to }));
+  anime({
+    targets: counters,
+    v: (c) => c.to,
+    round: 1,
+    duration: 1600,
+    easing: 'easeOutExpo',
+    update: () => counters.forEach((c) => (c.el.textContent = c.v))
+  });
+  graphs.forEach(animateGraph);
+};
+
+// rotating / resizing across the breakpoint reveals the other layout
+const onBreakpoint = () => { if (started) requestAnimationFrame(() => graphs.forEach(animateGraph)); };
 
 onMounted(async () => {
   if (prefersReducedMotion()) {
@@ -239,14 +292,16 @@ onMounted(async () => {
   }
   await document.fonts?.ready;
   if (!root.value) return;
-  svg.value.querySelectorAll('.node').forEach((n) => (n.style.opacity = 0));
+  Object.values(svgEls).forEach((s) => s?.querySelectorAll('.node').forEach((n) => (n.style.opacity = 0)));
+  mq = window.matchMedia('(min-width: 768px)');
+  mq.addEventListener('change', onBreakpoint);
   ctx = gsap.context(() => {
     const split = new SplitText(heading.value, { type: 'lines,words', mask: 'lines' });
     gsap.from(split.words, {
       yPercent: 110, duration: 1.1, stagger: 0.05, ease: 'expo.out',
       scrollTrigger: { trigger: heading.value, start: 'top 82%' }
     });
-    ScrollTrigger.create({ trigger: svg.value, start: 'top 80%', once: true, onEnter: startSchematic });
+    ScrollTrigger.create({ trigger: schematic.value, start: 'top 80%', once: true, onEnter: startSchematic });
     ScrollTrigger.create({
       trigger: root.value, start: 'top bottom', end: 'bottom top',
       onToggle: (self) => { clearInterval(feedTimer); if (self.isActive) runFeed(); }
@@ -256,6 +311,7 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   clearInterval(feedTimer);
+  mq?.removeEventListener('change', onBreakpoint);
   pulseAnims.forEach((a) => a.pause());
   ctx?.revert();
 });
@@ -267,4 +323,16 @@ onBeforeUnmount(() => {
 .wire.dim { opacity: 0.25; }
 .node { cursor: pointer; outline: none; }
 .node:focus-visible rect { stroke: #c6ff3d; stroke-width: 2; }
+
+/* knock wires out behind the small tag labels so they stay readable */
+.tag { paint-order: stroke; stroke: #131315; stroke-width: 5px; stroke-linejoin: round; }
+
+.hub-halo { animation: halo 2.4s ease-in-out infinite; }
+@keyframes halo {
+  0%, 100% { stroke-opacity: 0.1; }
+  50% { stroke-opacity: 0.55; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hub-halo { animation: none; }
+}
 </style>

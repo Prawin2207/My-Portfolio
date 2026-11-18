@@ -6,8 +6,11 @@
           <span class="h-[7px] w-[7px] rounded-full bg-accent shadow-[0_0_12px_rgba(198,255,61,0.8)]"></span>
           NODE_05 // OUTPUT
         </div>
-        <span class="hidden font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 sm:block">
+        <span class="hidden font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 sm:block [@media(hover:none)]:hidden">
           {{ particlesOn ? 'move · press to disturb the signal' : '' }}
+        </span>
+        <span class="hidden font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 [@media(hover:none)]:block">
+          {{ particlesOn ? 'touch · drag the signal' : '' }}
         </span>
       </div>
     </div>
@@ -114,6 +117,7 @@ const stage = ref(null);
 const particlesOn = ref(false);
 let particles = null;
 let io = null;
+let viewIo = null;
 let loading = false;
 
 /* ---------- form (validated, rate-limited, honeypot) ---------- */
@@ -198,6 +202,15 @@ onMounted(() => {
   }, { rootMargin: '200px 0px' });
   io.observe(stage.value);
 
+  // Re-form the words each time the headline actually comes into view
+  // (the loader above fires early, so the first assembly used to happen off-screen).
+  let wasVisible = false;
+  viewIo = new IntersectionObserver(([entry]) => {
+    if (entry.isIntersecting && !wasVisible) particles?.assemble();
+    wasVisible = entry.isIntersecting;
+  }, { threshold: 0.45 });
+  viewIo.observe(stage.value);
+
   gsap.from(root.value.querySelectorAll('form, .space-y-8 > *'), {
     y: 50, opacity: 0, duration: 1, stagger: 0.08, ease: 'expo.out',
     scrollTrigger: { trigger: stage.value, start: 'bottom 85%' }
@@ -206,6 +219,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   io?.disconnect();
+  viewIo?.disconnect();
   particles?.destroy();
 });
 </script>

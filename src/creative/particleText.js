@@ -81,14 +81,27 @@ export async function createParticleText(host, { lines = ["LET'S", 'BUILD.'], fo
   };
   build();
 
+  // Touch screens have no hover, so when nobody is touching, a "ghost" probe
+  // sweeps a figure-8 through the letters and keeps the signal alive.
+  const touchDevice = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+  let lastInput = -Infinity;
+  let t = 0;
   const radius = () => Math.max(70, host.clientWidth * 0.08);
-  app.ticker.add(() => {
-    const R = radius() * (pointer.down ? 1.8 : 1);
+  app.ticker.add((ticker) => {
+    t += ticker.deltaMS / 1000;
+    let px = pointer.x;
+    let py = pointer.y;
+    let R = radius() * (pointer.down ? 1.8 : 1);
+    if (touchDevice && performance.now() - lastInput > 1400) {
+      px = host.clientWidth * (0.5 + 0.44 * Math.sin(t * 0.7));
+      py = host.clientHeight * (0.5 + 0.32 * Math.sin(t * 1.4));
+      R = Math.max(42, host.clientWidth * 0.12);
+    }
     for (let i = 0; i < particles.length; i++) {
       const p = particles[i];
       const s = p.s;
-      const dx = s.x - pointer.x;
-      const dy = s.y - pointer.y;
+      const dx = s.x - px;
+      const dy = s.y - py;
       const d2 = dx * dx + dy * dy;
       if (d2 < R * R) {
         const d = Math.sqrt(d2) || 1;
@@ -111,15 +124,24 @@ export async function createParticleText(host, { lines = ["LET'S", 'BUILD.'], fo
     const r = host.getBoundingClientRect();
     pointer.x = e.clientX - r.left;
     pointer.y = e.clientY - r.top;
+    lastInput = performance.now();
   };
-  const onMove = (e) => local(e);
-  const onLeave = () => { pointer.x = pointer.y = -9999; pointer.down = false; };
-  const onDown = (e) => { local(e); pointer.down = true; };
+  const onMove = (e) => { if (e.pointerType !== 'touch') local(e); };
+  const onLeave = (e) => { if (e.pointerType !== 'touch') { pointer.x = pointer.y = -9999; pointer.down = false; } };
+  const onDown = (e) => { if (e.pointerType !== 'touch') { local(e); pointer.down = true; } };
   const onUp = () => { pointer.down = false; };
+  // Touch: pointer events get cancelled as soon as the page starts scrolling,
+  // but touchmove keeps firing, so the finger disturbs the dots even mid-scroll.
+  const onTouch = (e) => { const tp = e.touches[0]; if (tp) local(tp); };
+  const onTouchEnd = () => { pointer.x = pointer.y = -9999; lastInput = performance.now(); };
   host.addEventListener('pointermove', onMove, { passive: true });
   host.addEventListener('pointerleave', onLeave);
   host.addEventListener('pointerdown', onDown, { passive: true });
   window.addEventListener('pointerup', onUp);
+  host.addEventListener('touchstart', onTouch, { passive: true });
+  host.addEventListener('touchmove', onTouch, { passive: true });
+  host.addEventListener('touchend', onTouchEnd);
+  host.addEventListener('touchcancel', onTouchEnd);
 
   let resizeTimer = 0;
   const ro = new ResizeObserver(() => {
@@ -132,6 +154,12 @@ export async function createParticleText(host, { lines = ["LET'S", 'BUILD.'], fo
     start: () => app.ticker.start(),
     stop: () => app.ticker.stop(),
     scatter: () => particles.forEach((p) => { p.vx += (Math.random() - 0.5) * 60; p.vy += (Math.random() - 0.5) * 60; }),
+    // fling every dot to a random spot so the words visibly re-form
+    assemble: () => {
+      const w = host.clientWidth;
+      const h = host.clientHeight;
+      particles.forEach((p) => { p.s.x = Math.random() * w; p.s.y = Math.random() * h; p.vx = p.vy = 0; });
+    },
     destroy() {
       ro.disconnect();
       clearTimeout(resizeTimer);
@@ -139,6 +167,10 @@ export async function createParticleText(host, { lines = ["LET'S", 'BUILD.'], fo
       host.removeEventListener('pointerleave', onLeave);
       host.removeEventListener('pointerdown', onDown);
       window.removeEventListener('pointerup', onUp);
+      host.removeEventListener('touchstart', onTouch);
+      host.removeEventListener('touchmove', onTouch);
+      host.removeEventListener('touchend', onTouchEnd);
+      host.removeEventListener('touchcancel', onTouchEnd);
       texture.destroy(true);
       app.destroy(true, { children: true });
     }
